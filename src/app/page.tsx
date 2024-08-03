@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import PostItem from '@/app/_components/elements/PostItem';
-import { Post } from '@/app/_types/Post';
+import { MicroCmsPost } from '@/app/_types/MicroCmsPost';
 
 const TopPage: React.FC = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<MicroCmsPost[]>([]);
   useEffect(() => {
     const fetcher = async () => {
-      const res: Response = await fetch('https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts');
-      const { posts }: { posts: Post[] } = await res.json();
-      setPosts(posts);
+      const res = await fetch('https://gv8pgp0hs9.microcms.io/api/v1/posts', {
+        headers: {
+          'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string,
+        },
+      });
+      const { contents } = await res.json();
+      setPosts(contents);
     };
 
     fetcher();
@@ -18,7 +22,7 @@ const TopPage: React.FC = () => {
 
   return (
     <ul className='grid gap-6 max-w-3xl mt-8 mx-auto'>
-      {posts.map((post: Post) => (
+      {posts.map((post: MicroCmsPost) => (
         <PostItem key={post.id} {...post} />
       ))}
     </ul>
