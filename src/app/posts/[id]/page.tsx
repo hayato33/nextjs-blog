@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import parse from 'html-react-parser';
 import { useEffect, useState } from 'react';
-import { Post } from '@/types/Post';
+import { Post } from '@/app/_types/Post';
 import Image from 'next/image';
 
 const PostPage: React.FC = () => {
@@ -28,30 +28,27 @@ const PostPage: React.FC = () => {
   const date = new Date(createdAt);
 
   return (
-    <>
-      <article className='max-w-3xl mx-auto mt-16'>
-        <Image width={800} height={400} src={thumbnailUrl} alt='アイキャッチ画像' className='w-full h-auto' />
-
-        <div className='p-4'>
-          <div className='flex justify-between mb-2'>
-            <time dateTime={date.toLocaleDateString('sv-SE')} className='text-sm text-gray-400'>
-              {date.toLocaleDateString()}
-            </time>
-            <ul className='flex'>
-              {categories.map((category: string) => {
-                return (
-                  <li key={category} className='text-blue-600 border border-blue-600 ml-2 p-1 text-sm rounded'>
-                    {category}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <h2 className='text-2xl mb-4'>{title}</h2>
-          <div>{parse(content)}</div>
+    <article className='max-w-3xl mx-auto mt-16'>
+      <Image width={800} height={400} src={thumbnailUrl} alt='アイキャッチ画像' className='w-full h-auto' />
+      <div className='p-4'>
+        <div className='flex justify-between mb-2'>
+          <time dateTime={date.toLocaleDateString('sv-SE')} className='text-sm text-gray-400'>
+            {date.toLocaleDateString()}
+          </time>
+          <ul className='flex'>
+            {categories.map((category: string) => {
+              return (
+                <li key={category} className='text-blue-600 border border-blue-600 ml-2 p-1 text-sm rounded'>
+                  {category}
+                </li>
+              );
+            })}
+          </ul>
         </div>
-      </article>
-    </>
+        <h2 className='text-2xl mb-4'>{title}</h2>
+        <div>{parse(content)}</div>
+      </div>
+    </article>
   );
 };
 export default PostPage;

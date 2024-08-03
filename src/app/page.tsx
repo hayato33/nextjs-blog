@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import PostItem from '@/components/elements/PostItem';
-import { Post } from '@/types/Post';
+import PostItem from '@/app/_components/elements/PostItem';
+import { Post } from '@/app/_types/Post';
 
 const TopPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -17,13 +17,11 @@ const TopPage: React.FC = () => {
   }, []);
 
   return (
-    <>
-      <ul className='grid gap-6 max-w-3xl mt-8 mx-auto'>
-        {posts.map((post: Post) => (
-          <PostItem key={post.id} {...post} />
-        ))}
-      </ul>
-    </>
+    <ul className='grid gap-6 max-w-3xl mt-8 mx-auto'>
+      {posts.map((post: Post) => (
+        <PostItem key={post.id} {...post} />
+      ))}
+    </ul>
   );
 };
 export default TopPage;

@@ -32,19 +32,24 @@ const ContactPage: React.FC = () => {
     // バリデーション
     if (!validate()) return;
 
-    setIsSubmitting(true);
-    const apiUrl = 'https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/contacts';
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, email, message }),
-    };
-    await fetch(apiUrl, requestOptions);
-    alert('送信しました');
-    handleClear();
-    setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      const apiUrl = 'https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/contacts';
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, message }),
+      };
+      await fetch(apiUrl, requestOptions);
+      alert('送信しました。');
+      handleClear();
+      setIsSubmitting(false);
+    } catch (error) {
+      alert('送信に失敗しました。');
+      console.error(error);
+    }
   };
 
   const handleClear = () => {

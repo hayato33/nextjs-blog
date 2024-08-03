@@ -1,7 +1,7 @@
 'use client';
 
 import parse from 'html-react-parser';
-import { Post } from '@/types/Post';
+import { Post } from '@/app/_types/Post';
 import Link from 'next/link';
 
 const PostItem: React.FC<Post> = ({ id, title, createdAt, categories, content }) => {
