@@ -3,6 +3,8 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Category } from '@/app/_types/Category';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // 管理画面_カテゴリー更新&削除ページ
 
@@ -36,23 +38,28 @@ const AdminCategoryDetailPage: React.FC = () => {
     });
 
     if (res.ok) {
-      alert('カテゴリーが更新されました');
+      toast.success('カテゴリーが更新されました！');
       router.refresh();
     } else {
-      alert('更新に失敗しました');
+      toast.error('更新に失敗しました');
     }
   };
 
   const handleDelete = async () => {
+    if (!confirm('本当に削除してよろしいですか？')) {
+      return;
+    }
     const res = await fetch(`/api/admin/categories/${id}`, {
       method: 'DELETE',
     });
 
     if (res.ok) {
-      alert('カテゴリーが削除されました');
-      router.push('/admin/categories');
+      toast.success('カテゴリーが削除されました！');
+      setTimeout(() => {
+        router.push('/admin/categories');
+      }, 1000);
     } else {
-      alert('削除に失敗しました');
+      toast.error('削除に失敗しました。');
     }
   };
 
@@ -61,6 +68,7 @@ const AdminCategoryDetailPage: React.FC = () => {
 
   return (
     <>
+      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>カテゴリー編集</h2>
       <form onSubmit={handleUpdate}>
         <div className='mb-6 grid gap-6'>

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // 管理画面_カテゴリー新規作成ページ
 
@@ -25,12 +27,12 @@ const AdminCategoryDetailPage: React.FC = () => {
       });
 
       if (!res.ok) {
-        throw new Error('カテゴリーの作成に失敗しました。');
+        throw new Error('カテゴリー作成に失敗しました。');
       }
 
-      setSuccessMessage(`カテゴリー「${categoryName}」を作成しました。`);
+      toast.success(`カテゴリー「${categoryName}」を作成しました。`);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : '不明なエラーが発生しました。');
+      toast.error('カテゴリー作成に失敗しました。');
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -40,6 +42,7 @@ const AdminCategoryDetailPage: React.FC = () => {
 
   return (
     <>
+      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>カテゴリー作成</h2>
       {successMessage && <p className='text-sm text-green-700 mb-4'>{successMessage}</p>}
       {errorMessage && <p className='text-sm text-red-700 mb-4'>{errorMessage}</p>}

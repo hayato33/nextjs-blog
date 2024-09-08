@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { Post } from '@prisma/client';
 import { Category } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type ExtendedCategory = Category & {
   category: {
@@ -83,23 +85,28 @@ const AdminPostDetailPage: React.FC = () => {
     setIsSubmitting(false);
 
     if (res.ok) {
-      alert('記事が更新されました');
+      toast.success('記事が更新されました！');
       router.refresh();
     } else {
-      alert('更新に失敗しました');
+      toast.error('更新に失敗しました。');
     }
   };
 
   const handleDelete = async () => {
+    if (!confirm('本当に削除してよろしいですか？')) {
+      return;
+    }
     const res = await fetch(`/api/admin/posts/${id}`, {
       method: 'DELETE',
     });
 
     if (res.ok) {
-      alert('記事が削除されました');
-      router.push('/admin/posts');
+      toast.success('記事が削除されました！');
+      setTimeout(() => {
+        router.push('/admin/posts');
+      }, 1000);
     } else {
-      alert('削除に失敗しました');
+      toast.error('削除に失敗しました。');
     }
   };
 
@@ -114,6 +121,7 @@ const AdminPostDetailPage: React.FC = () => {
 
   return (
     <>
+      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>記事編集</h2>
       <form onSubmit={handleUpdate}>
         <div className='mb-6 grid gap-6'>
