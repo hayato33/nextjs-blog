@@ -1,12 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 // 管理画面_カテゴリー新規作成ページ
 
 const AdminCategoryDetailPage: React.FC = () => {
+  const router = useRouter();
   const [categoryName, setCategoryName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -31,18 +32,17 @@ const AdminCategoryDetailPage: React.FC = () => {
       }
 
       toast.success(`カテゴリー「${categoryName}」を作成しました。`);
+      router.push('/admin/categories');
     } catch (error) {
       toast.error('カテゴリー作成に失敗しました。');
       console.error(error);
     } finally {
       setIsSubmitting(false);
-      setCategoryName('');
     }
   };
 
   return (
     <>
-      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>カテゴリー作成</h2>
       {successMessage && <p className='text-sm text-green-700 mb-4'>{successMessage}</p>}
       {errorMessage && <p className='text-sm text-red-700 mb-4'>{errorMessage}</p>}

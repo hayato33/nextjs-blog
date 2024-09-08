@@ -25,6 +25,7 @@ export const GET = async (request: NextRequest, { params }: { params: { id: stri
         },
       },
     });
+    if (!post) return NextResponse.json({ status: 'Not Found' }, { status: 404 });
 
     return NextResponse.json({ status: 'OK', post: post }, { status: 200 });
   } catch (error) {

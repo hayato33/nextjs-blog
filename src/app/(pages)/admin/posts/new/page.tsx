@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Category } from '@/app/_types/Category';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 // 管理画面_新規投稿ページ
 const AdminPostCreatePage: React.FC = () => {
@@ -14,6 +14,7 @@ const AdminPostCreatePage: React.FC = () => {
     categories: [],
   };
 
+  const router = useRouter();
   const [post, setPost] = useState(initialPostState);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -61,9 +62,8 @@ const AdminPostCreatePage: React.FC = () => {
       if (!res.ok) {
         throw new Error('投稿作成に失敗しました。');
       }
-      toast.success('投稿が作成されました！');
-      setPost(initialPostState);
-      setSelectedCategoryIds([]);
+      toast.success(`投稿「${post.title}」を作成しました。`);
+      router.push('/admin/posts');
     } catch (error) {
       toast.error('投稿作成に失敗しました。');
       console.error(error);
@@ -80,7 +80,6 @@ const AdminPostCreatePage: React.FC = () => {
 
   return (
     <>
-      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>記事作成</h2>
       {isLoading ? (
         <p>読み込み中...</p>

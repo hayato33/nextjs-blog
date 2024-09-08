@@ -13,6 +13,7 @@ export const GET = async (request: NextRequest, { params }: { params: { id: stri
         id: parseInt(id),
       },
     });
+    if (!category) return NextResponse.json({ status: 'Not Found' }, { status: 404 });
 
     return NextResponse.json({ status: 'OK', category: category }, { status: 200 });
   } catch (error) {

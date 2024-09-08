@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react';
 import { Post } from '@prisma/client';
 import { Category } from '@prisma/client';
 import { useRouter } from 'next/navigation';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 type ExtendedCategory = Category & {
   category: {
@@ -102,9 +101,7 @@ const AdminPostDetailPage: React.FC = () => {
 
     if (res.ok) {
       toast.success('記事が削除されました！');
-      setTimeout(() => {
-        router.push('/admin/posts');
-      }, 1000);
+      router.push('/admin/posts');
     } else {
       toast.error('削除に失敗しました。');
     }
@@ -121,7 +118,6 @@ const AdminPostDetailPage: React.FC = () => {
 
   return (
     <>
-      <ToastContainer />
       <h2 className='text-2xl font-bold mb-6'>記事編集</h2>
       <form onSubmit={handleUpdate}>
         <div className='mb-6 grid gap-6'>

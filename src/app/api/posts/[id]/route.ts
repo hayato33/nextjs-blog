@@ -32,6 +32,7 @@ export const GET = async (
         },
       },
     });
+    if (!post) return NextResponse.json({ status: 'Not Found' }, { status: 404 });
 
     // レスポンスを返す
     return NextResponse.json({ status: 'OK', post: post }, { status: 200 });
