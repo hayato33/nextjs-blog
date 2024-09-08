@@ -65,32 +65,32 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <form className='max-w-3xl w-auto mt-12 mx-auto' onSubmit={handleSubmit}>
-      <h2 className='text-xl font-bold mb-12'>問合わせフォーム</h2>
+    <form className='max-w-3xl w-auto mt-12 mx-auto px-6' onSubmit={handleSubmit}>
+      <h2 className='text-xl font-bold mb-6 sm:mb-12'>問合わせフォーム</h2>
       <div className='mb-12 grid gap-6'>
-        <div className='flex items-center'>
-          <label htmlFor='name' className='w-3/12'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center'>
+          <label htmlFor='name' className='w-full sm:w-3/12 mb-2 sm:mb-0'>
             お名前
           </label>
-          <div className='w-9/12'>
+          <div className='w-full sm:w-9/12'>
             <input type='text' id='name' name='name' className='w-full border border-gray-300 rounded-lg p-4' required value={name} onChange={nameChange} disabled={isSubmitting} />
             <p className='text-sm text-red-700'>{nameErrorMessage}</p>
           </div>
         </div>
-        <div className='flex items-center'>
-          <label htmlFor='email' className='w-3/12'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center'>
+          <label htmlFor='email' className='w-full sm:w-3/12 mb-2 sm:mb-0'>
             メールアドレス
           </label>
-          <div className='w-9/12'>
+          <div className='w-full sm:w-9/12'>
             <input type='text' id='email' name='email' className='w-full border border-gray-300 rounded-lg p-4' required value={email} onChange={emailChange} disabled={isSubmitting} />
             <p className='text-sm text-red-700'>{emailErrorMessage}</p>
           </div>
         </div>
-        <div className='flex items-center'>
-          <label htmlFor='message' className='w-3/12'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center'>
+          <label htmlFor='message' className='w-full sm:w-3/12 mb-2 sm:mb-0'>
             本文
           </label>
-          <div className='w-9/12'>
+          <div className='w-full sm:w-9/12'>
             <textarea rows={8} id='message' name='message' className='w-full border border-gray-300 rounded-lg p-4' required value={message} onChange={messageChange} disabled={isSubmitting}></textarea>
             <p className='text-sm text-red-700'>{messageErrorMessage}</p>
           </div>

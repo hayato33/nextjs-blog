@@ -1,10 +1,10 @@
 'use client';
 
 import parse from 'html-react-parser';
-import { MicroCmsPost } from '@/app/_types/MicroCmsPost';
+import { Post } from '@/app/_types/Post';
 import Link from 'next/link';
 
-const PostItem: React.FC<MicroCmsPost> = ({ id, title, createdAt, categories, content }) => {
+const PostItem: React.FC<Post> = ({ id, title, createdAt, postCategories, content }) => {
   const date: Date = new Date(createdAt);
   return (
     <li className='border border-gray-400'>
@@ -14,10 +14,10 @@ const PostItem: React.FC<MicroCmsPost> = ({ id, title, createdAt, categories, co
             {date.toLocaleDateString()}
           </time>
           <ul className='flex'>
-            {categories.map((category) => {
+            {postCategories.map((postCategory) => {
               return (
-                <li key={category.id} className='text-blue-600 border border-blue-600 ml-2 p-1 text-sm rounded'>
-                  {category.name}
+                <li key={postCategory.category.id} className='text-blue-600 border border-blue-600 ml-2 p-1 text-sm rounded'>
+                  {postCategory.category.name}
                 </li>
               );
             })}
