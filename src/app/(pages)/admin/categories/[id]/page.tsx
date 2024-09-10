@@ -4,18 +4,25 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Category } from '@/app/_types/Category';
 import { toast } from 'react-toastify';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 
 // 管理画面_カテゴリー更新&削除ページ
-
 const AdminCategoryDetailPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [category, setCategory] = useState<Category>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!token) return;
     const fetchCategory = async () => {
-      const res = await fetch(`/api/admin/categories/${id}`);
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
       if (res.ok) {
         const { category } = await res.json();
         setCategory(category);
@@ -24,14 +31,16 @@ const AdminCategoryDetailPage: React.FC = () => {
     };
 
     fetchCategory();
-  }, [id]);
+  }, [id, token]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
     const res = await fetch(`/api/admin/categories/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: token,
       },
       body: JSON.stringify({ ...category }),
     });
@@ -45,11 +54,16 @@ const AdminCategoryDetailPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
+    if (!token) return;
     if (!confirm('本当に削除してよろしいですか？')) {
       return;
     }
     const res = await fetch(`/api/admin/categories/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token,
+      },
     });
 
     if (res.ok) {

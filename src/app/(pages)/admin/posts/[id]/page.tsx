@@ -6,6 +6,7 @@ import { Post } from '@prisma/client';
 import { Category } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 
 type ExtendedCategory = Category & {
   category: {
@@ -19,6 +20,7 @@ type ExtendedPost = Post & {
 
 // 管理画面_投稿更新&削除ページ
 const AdminPostDetailPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [post, setPost] = useState<ExtendedPost | null>(null);
@@ -28,9 +30,15 @@ const AdminPostDetailPage: React.FC = () => {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   useEffect(() => {
+    if (!token) return;
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`/api/admin/posts/${id}`);
+        const res = await fetch(`/api/admin/posts/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         if (res.ok) {
           const { post } = await res.json();
           setPost(post);
@@ -43,7 +51,12 @@ const AdminPostDetailPage: React.FC = () => {
     };
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`/api/admin/categories`);
+        const res = await fetch(`/api/admin/categories`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         if (res.ok) {
           const { categories } = await res.json();
           const sortedCategories = categories.sort((a: Category, b: Category) => a.id - b.id);
@@ -57,7 +70,7 @@ const AdminPostDetailPage: React.FC = () => {
     };
     fetchPosts();
     fetchCategories();
-  }, [id]);
+  }, [id, token]);
 
   useEffect(() => {
     if (post) {
@@ -67,13 +80,14 @@ const AdminPostDetailPage: React.FC = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!post) return;
+    if (!token || !post) return;
     setIsSubmitting(true);
 
     const res = await fetch(`/api/admin/posts/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: token,
       },
       body: JSON.stringify({
         ...post,
@@ -92,11 +106,16 @@ const AdminPostDetailPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
+    if (!token) return;
     if (!confirm('本当に削除してよろしいですか？')) {
       return;
     }
     const res = await fetch(`/api/admin/posts/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token,
+      },
     });
 
     if (res.ok) {

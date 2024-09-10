@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Category, PrismaClient } from '@prisma/client';
+import { supabase } from '@/utils/supabase';
 
 const prisma = new PrismaClient();
 
 // 管理者_記事詳細取得API
 export const GET = async (request: NextRequest, { params }: { params: { id: string } }) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   const { id } = params;
 
   try {
@@ -46,6 +51,10 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: { id: string } } // ここでリクエストパラメータを受け取る
 ) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = params;
 
@@ -95,6 +104,10 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: { id: string } } // ここでリクエストパラメータを受け取る
 ) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = params;
 

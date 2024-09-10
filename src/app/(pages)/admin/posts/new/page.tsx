@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react';
 import { Category } from '@/app/_types/Category';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 
 // 管理画面_新規投稿ページ
 const AdminPostCreatePage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const initialPostState = {
     title: '',
     content: '',
     thumbnailUrl: '',
     categories: [],
   };
-
   const router = useRouter();
   const [post, setPost] = useState(initialPostState);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,9 +25,15 @@ const AdminPostCreatePage: React.FC = () => {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   useEffect(() => {
+    if (!token) return;
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`/api/admin/categories`);
+        const res = await fetch(`/api/admin/categories`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         if (res.ok) {
           const { categories } = await res.json();
           const sortedCategories = categories.sort((a: Category, b: Category) => a.id - b.id);
@@ -39,10 +46,11 @@ const AdminPostCreatePage: React.FC = () => {
       }
     };
     fetchCategories();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
     setIsSubmitting(true);
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -52,6 +60,7 @@ const AdminPostCreatePage: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
         body: JSON.stringify({
           ...post,

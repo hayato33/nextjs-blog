@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { supabase } from '@/utils/supabase';
 
 const prisma = new PrismaClient();
 
 // 管理者_カテゴリー詳細取得API
 export const GET = async (request: NextRequest, { params }: { params: { id: string } }) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   const { id } = params;
 
   try {
@@ -28,6 +33,10 @@ interface UpdateCategoryRequestBody {
 
 // 管理者_カテゴリー更新API
 export const PUT = async (request: NextRequest, { params }: { params: { id: string } }) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   const { id } = params;
   const { name }: UpdateCategoryRequestBody = await request.json();
 
@@ -49,6 +58,10 @@ export const PUT = async (request: NextRequest, { params }: { params: { id: stri
 
 // 管理者_カテゴリー削除API
 export const DELETE = async (request: NextRequest, { params }: { params: { id: string } }) => {
+  const token = request.headers.get('Authorization') ?? '';
+  const { error } = await supabase.auth.getUser(token);
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 });
+
   const { id } = params;
 
   try {

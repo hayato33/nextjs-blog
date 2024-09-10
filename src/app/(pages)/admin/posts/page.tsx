@@ -3,21 +3,30 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Post } from '@/app/_types/Post';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 
 const AdminPostTopPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/posts');
+      const res = await fetch('/api/admin/posts', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token, // 👈 Header に token を付与
+        },
+      });
       const { posts } = await res.json();
       setPosts(posts);
       setIsLoading(false);
     };
 
     fetcher();
-  }, []);
+  }, [token]);
 
   return (
     <>

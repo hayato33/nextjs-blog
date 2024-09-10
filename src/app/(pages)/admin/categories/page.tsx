@@ -1,23 +1,31 @@
 'use client';
 
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { Category } from '@/app/_types/Category';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 const AdminPostTopPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!token) return;
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories');
+      const res = await fetch('/api/admin/categories', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
       const { categories } = await res.json();
       setCategories(categories);
       setIsLoading(false);
     };
 
     fetcher();
-  }, []);
+  }, [token]);
 
   return (
     <>
