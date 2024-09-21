@@ -1,6 +1,7 @@
 'use client';
 
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+import request from '@/app/_utils/api';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -21,14 +22,7 @@ const AdminCategoryDetailPage: React.FC = () => {
     setSuccessMessage(null);
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/admin/categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-        body: JSON.stringify({ name: categoryName }),
-      });
+      const res = await request(`/api/admin/categories`, 'POST', JSON.stringify({ name: categoryName }), token);
 
       if (!res.ok) {
         throw new Error('カテゴリー作成に失敗しました。');

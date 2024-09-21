@@ -8,6 +8,7 @@ import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { supabase } from '@/utils/supabase';
 import { v4 as uuidv4 } from 'uuid'; // 固有IDを生成するライブラリ
 import Image from 'next/image';
+import request from '@/app/_utils/api';
 
 // 管理画面_新規投稿ページ
 const AdminPostCreatePage: React.FC = () => {
@@ -32,12 +33,7 @@ const AdminPostCreatePage: React.FC = () => {
     if (!token) return;
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`/api/admin/categories`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        });
+        const res = await request('/api/admin/categories', 'GET', undefined, token);
         if (res.ok) {
           const { categories } = await res.json();
           const sortedCategories = categories.sort((a: Category, b: Category) => a.id - b.id);
@@ -60,18 +56,16 @@ const AdminPostCreatePage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const res = await fetch('/api/admin/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-        body: JSON.stringify({
+      const res = await request(
+        '/api/admin/posts',
+        'POST',
+        JSON.stringify({
           ...post,
           thumbnailImageKey,
           categories: selectedCategoryIds.map((id) => ({ id })),
         }),
-      });
+        token
+      );
 
       if (!res.ok) {
         throw new Error('投稿作成に失敗しました。');

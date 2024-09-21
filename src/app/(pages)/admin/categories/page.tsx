@@ -2,6 +2,7 @@
 
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { Category } from '@/app/_types/Category';
+import request from '@/app/_utils/api';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
@@ -13,12 +14,7 @@ const AdminPostTopPage: React.FC = () => {
   useEffect(() => {
     if (!token) return;
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      });
+			const res = await request(`/api/admin/categories`, 'GET', undefined, token);
       const { categories } = await res.json();
       setCategories(categories);
       setIsLoading(false);

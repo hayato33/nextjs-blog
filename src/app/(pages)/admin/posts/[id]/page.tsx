@@ -10,6 +10,7 @@ import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { supabase } from '@/utils/supabase';
 import { v4 as uuidv4 } from 'uuid'; // 固有IDを生成するライブラリ
 import Image from 'next/image';
+import request from '@/app/_utils/api';
 
 type ExtendedCategory = Category & {
   category: {
@@ -37,12 +38,7 @@ const AdminPostDetailPage: React.FC = () => {
     if (!token) return;
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`/api/admin/posts/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        });
+        const res = await request(`/api/admin/posts/${id}`, 'GET', undefined, token);
         if (res.ok) {
           const { post } = await res.json();
           setPost(post);
@@ -55,12 +51,7 @@ const AdminPostDetailPage: React.FC = () => {
     };
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`/api/admin/categories`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        });
+        const res = await request(`/api/admin/categories`, 'GET', undefined, token);
         if (res.ok) {
           const { categories } = await res.json();
           const sortedCategories = categories.sort((a: Category, b: Category) => a.id - b.id);
@@ -93,25 +84,19 @@ const AdminPostDetailPage: React.FC = () => {
     fetcher();
   }, [post]);
 
-  console.log(post);
-
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token || !post) return;
     setIsSubmitting(true);
-
-    const res = await fetch(`/api/admin/posts/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      body: JSON.stringify({
+    const res = await request(
+      `/api/admin/posts/${id}`,
+      'PUT',
+      JSON.stringify({
         ...post,
         categories: selectedCategoryIds.map((id) => ({ id })),
       }),
-    });
-
+      token
+    );
     setIsSubmitting(false);
 
     if (res.ok) {
@@ -127,13 +112,7 @@ const AdminPostDetailPage: React.FC = () => {
     if (!confirm('本当に削除してよろしいですか？')) {
       return;
     }
-    const res = await fetch(`/api/admin/posts/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-    });
+    const res = await request(`/api/admin/posts/${id}`, 'DELETE', undefined, token);
 
     if (res.ok) {
       toast.success('記事が削除されました！');
