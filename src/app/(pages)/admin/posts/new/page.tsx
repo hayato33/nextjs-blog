@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { Category } from '@/app/_types/Category';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+import { supabase } from '@/utils/supabase';
+import { v4 as uuidv4 } from 'uuid'; // 固有IDを生成するライブラリ
+import Image from 'next/image';
 
 // 管理画面_新規投稿ページ
 const AdminPostCreatePage: React.FC = () => {
@@ -12,7 +15,7 @@ const AdminPostCreatePage: React.FC = () => {
   const initialPostState = {
     title: '',
     content: '',
-    thumbnailUrl: '',
+    thumbnailImageKey: '',
     categories: [],
   };
   const router = useRouter();
@@ -23,6 +26,7 @@ const AdminPostCreatePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [thumbnailImageKey, setThumbnailImageKey] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -64,6 +68,7 @@ const AdminPostCreatePage: React.FC = () => {
         },
         body: JSON.stringify({
           ...post,
+          thumbnailImageKey,
           categories: selectedCategoryIds.map((id) => ({ id })),
         }),
       });
@@ -86,6 +91,51 @@ const AdminPostCreatePage: React.FC = () => {
     const categoryId = parseInt(value, 10);
     setSelectedCategoryIds((prevIds) => (checked ? [...prevIds, categoryId] : prevIds.filter((id) => id !== categoryId)));
   };
+
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    if (!event.target.files || event.target.files.length == 0) {
+      // 画像が選択されていないのでreturn
+      return;
+    }
+
+    const file = event.target.files[0]; // 選択された画像を取得
+
+    const filePath = `private/${uuidv4()}`; // ファイルパスを指定
+
+    // Supabaseに画像をアップロード
+    const { data, error } = await supabase.storage
+      .from('post_thumbnail') // ここでバケット名を指定
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    // アップロードに失敗したらエラーを表示して終了
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    // data.pathに、画像固有のkeyが入っているので、thumbnailImageKeyに格納する
+    setThumbnailImageKey(data.path);
+  };
+
+  // Imageタグのsrcにセットする画像URLを持たせるstate
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(null);
+
+  useEffect(() => {
+    if (!thumbnailImageKey) return; // アップロード時に取得した、thumbnailImageKeyを用いて画像のURLを取得
+
+    const fetcher = async () => {
+      const {
+        data: { publicUrl },
+      } = await supabase.storage.from('post_thumbnail').getPublicUrl(thumbnailImageKey);
+
+      setThumbnailImageUrl(publicUrl);
+    };
+
+    fetcher();
+  }, [thumbnailImageKey]);
 
   return (
     <>
@@ -127,20 +177,17 @@ const AdminPostCreatePage: React.FC = () => {
               </div>
             </div>
             <div>
-              <label htmlFor='thumbnailUrl'>サムネイルURL</label>
-              <div className=''>
-                <input
-                  type='text'
-                  id='thumbnailUrl'
-                  name='thumbnailUrl'
-                  className='w-full border border-gray-300 rounded-lg p-4'
-                  value={post.thumbnailUrl}
-                  onChange={(e) => {
-                    setPost({ ...post, thumbnailUrl: e.target.value });
-                  }}
-                  disabled={isSubmitting}
-                />
+              <div>
+                <label htmlFor='thumbnailImageKey' className='block text-sm font-medium text-gray-700'>
+                  サムネイルURL
+                </label>
+                <input type='file' id='thumbnailImageKey' onChange={handleImageChange} accept='image/*' disabled={isSubmitting} />
               </div>
+              {thumbnailImageUrl && (
+                <div className='mt-2'>
+                  <Image src={thumbnailImageUrl} alt='thumbnail' width={400} height={400} />
+                </div>
+              )}
             </div>
             <div>
               <label>カテゴリー</label>

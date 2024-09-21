@@ -1,12 +1,15 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { Post } from '@prisma/client';
 import { Category } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+import { supabase } from '@/utils/supabase';
+import { v4 as uuidv4 } from 'uuid'; // 固有IDを生成するライブラリ
+import Image from 'next/image';
 
 type ExtendedCategory = Category & {
   category: {
@@ -28,6 +31,7 @@ const AdminPostDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -76,7 +80,20 @@ const AdminPostDetailPage: React.FC = () => {
     if (post) {
       setSelectedCategoryIds(post.postCategories.map((postCategory) => postCategory.category.id));
     }
+
+    if (!post || !post.thumbnailImageKey) return; // アップロード時に取得した、thumbnailImageKeyを用いて画像のURLを取得
+
+    const fetcher = async () => {
+      const {
+        data: { publicUrl },
+      } = await supabase.storage.from('post_thumbnail').getPublicUrl(post.thumbnailImageKey);
+
+      setThumbnailImageUrl(publicUrl);
+    };
+    fetcher();
   }, [post]);
+
+  console.log(post);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +143,34 @@ const AdminPostDetailPage: React.FC = () => {
     }
   };
 
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    if (!event.target.files || event.target.files.length == 0) {
+      // 画像が選択されていないのでreturn
+      return;
+    }
+
+    const file = event.target.files[0]; // 選択された画像を取得
+
+    const filePath = `private/${uuidv4()}`; // ファイルパスを指定
+
+    // Supabaseに画像をアップロード
+    const { data, error } = await supabase.storage
+      .from('post_thumbnail') // ここでバケット名を指定
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    // アップロードに失敗したらエラーを表示して終了
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    // data.pathに、画像固有のkeyが入っているので、thumbnailImageKeyに格納する
+    if (post) setPost({ ...post, thumbnailImageKey: data.path });
+  };
+
   const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     const categoryId = parseInt(value, 10);
@@ -172,20 +217,17 @@ const AdminPostDetailPage: React.FC = () => {
             </div>
           </div>
           <div>
-            <label htmlFor='title'>サムネイルURL</label>
-            <div className=''>
-              <input
-                type='text'
-                id='thumbnailUrl'
-                name='thumbnailUrl'
-                value={post.thumbnailUrl}
-                onChange={(e) => {
-                  setPost({ ...post, thumbnailUrl: e.target.value });
-                }}
-                className='w-full border border-gray-300 rounded-lg p-4'
-                disabled={isSubmitting}
-              />
+            <div>
+              <label htmlFor='thumbnailImageKey' className='block text-sm font-medium text-gray-700'>
+                サムネイルURL
+              </label>
+              <input type='file' id='thumbnailImageKey' onChange={handleImageChange} accept='image/*' disabled={isSubmitting} />
             </div>
+            {thumbnailImageUrl && (
+              <div className='mt-2'>
+                <Image src={thumbnailImageUrl} alt='thumbnail' width={400} height={400} />
+              </div>
+            )}
           </div>
           <div>
             <label>カテゴリー</label>

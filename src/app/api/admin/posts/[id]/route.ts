@@ -43,7 +43,7 @@ interface UpdatePostRequestBody {
   title: string;
   content: string;
   categories: { id: number }[];
-  thumbnailUrl: string;
+  thumbnailImageKey: string;
 }
 
 // 管理者_記事更新API
@@ -59,7 +59,7 @@ export const PUT = async (
   const { id } = params;
 
   // リクエストのbodyを取得
-  const { title, content, categories, thumbnailUrl }: UpdatePostRequestBody = await request.json();
+  const { title, content, categories, thumbnailImageKey }: UpdatePostRequestBody = await request.json();
 
   try {
     // idを指定して、Postを更新
@@ -70,7 +70,7 @@ export const PUT = async (
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     });
 

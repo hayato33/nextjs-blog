@@ -37,7 +37,7 @@ const AdminPostTopPage: React.FC = () => {
       </div>
       {isLoading ? (
         <p>読み込み中...</p>
-      ) : categories.length === 0 ? (
+      ) : !categories || categories.length === 0 ? (
         <p>カテゴリーがありません。</p>
       ) : (
         <ul>

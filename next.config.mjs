@@ -5,6 +5,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'placehold.jp' },
       { protocol: 'https', hostname: 'images.microcms-assets.io' },
       { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'qpmnxmwelyetiwqoxvlu.supabase.co' },
     ],
   },
 };
