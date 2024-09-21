@@ -3,8 +3,8 @@
 import { useParams } from 'next/navigation';
 import parse from 'html-react-parser';
 import { useEffect, useState } from 'react';
-import { Post } from '@prisma/client';
-import { Category } from '@prisma/client';
+import { Post } from '@prisma/client/edge';
+import { Category } from '@prisma/client/edge';
 import Image from 'next/image';
 import { supabase } from '@/utils/supabase';
 

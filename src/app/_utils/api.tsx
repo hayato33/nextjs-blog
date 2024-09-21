@@ -1,4 +1,4 @@
-const request = (path: string, method = 'GET', body: any = undefined, token: string | null) => {
+const request = (path: string, method = 'GET', body: any = undefined, token: string) => {
   return fetch(path, {
     method: method,
     headers: {
