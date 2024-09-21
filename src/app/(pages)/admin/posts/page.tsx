@@ -3,21 +3,26 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Post } from '@/app/_types/Post';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+import request from '@/app/_utils/api';
 
 const AdminPostTopPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/posts');
+      const res = await request('/api/admin/posts', 'GET', undefined, token);
       const { posts } = await res.json();
       setPosts(posts);
       setIsLoading(false);
     };
 
     fetcher();
-  }, []);
+  }, [token]);
 
   return (
     <>
@@ -29,7 +34,7 @@ const AdminPostTopPage: React.FC = () => {
       </div>
       {isLoading ? (
         <p>読み込み中...</p>
-      ) : posts.length === 0 ? (
+      ) : !posts || posts.length === 0 ? (
         <p>記事がありません。</p>
       ) : (
         <ul>

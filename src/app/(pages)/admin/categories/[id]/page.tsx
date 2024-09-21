@@ -4,18 +4,21 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Category } from '@/app/_types/Category';
 import { toast } from 'react-toastify';
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
+import request from '@/app/_utils/api';
 
 // 管理画面_カテゴリー更新&削除ページ
-
 const AdminCategoryDetailPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [category, setCategory] = useState<Category>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!token) return;
     const fetchCategory = async () => {
-      const res = await fetch(`/api/admin/categories/${id}`);
+      const res = await request(`/api/admin/categories/${id}`, 'GET', undefined, token);
       if (res.ok) {
         const { category } = await res.json();
         setCategory(category);
@@ -24,17 +27,12 @@ const AdminCategoryDetailPage: React.FC = () => {
     };
 
     fetchCategory();
-  }, [id]);
+  }, [id, token]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch(`/api/admin/categories/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...category }),
-    });
+    if (!token) return;
+    const res = await request(`/api/admin/categories/${id}`, 'PUT', JSON.stringify({ ...category }), token);
 
     if (res.ok) {
       toast.success('カテゴリーが更新されました！');
@@ -45,12 +43,11 @@ const AdminCategoryDetailPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
+    if (!token) return;
     if (!confirm('本当に削除してよろしいですか？')) {
       return;
     }
-    const res = await fetch(`/api/admin/categories/${id}`, {
-      method: 'DELETE',
-    });
+    const res = await request(`/api/admin/categories/${id}`, 'DELETE', undefined, token);
 
     if (res.ok) {
       toast.success('カテゴリーが削除されました！');

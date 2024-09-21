@@ -1,23 +1,27 @@
 'use client';
 
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { Category } from '@/app/_types/Category';
+import request from '@/app/_utils/api';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 const AdminPostTopPage: React.FC = () => {
+  const { token } = useSupabaseSession();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!token) return;
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories');
+			const res = await request(`/api/admin/categories`, 'GET', undefined, token);
       const { categories } = await res.json();
       setCategories(categories);
       setIsLoading(false);
     };
 
     fetcher();
-  }, []);
+  }, [token]);
 
   return (
     <>
@@ -29,7 +33,7 @@ const AdminPostTopPage: React.FC = () => {
       </div>
       {isLoading ? (
         <p>読み込み中...</p>
-      ) : categories.length === 0 ? (
+      ) : !categories || categories.length === 0 ? (
         <p>カテゴリーがありません。</p>
       ) : (
         <ul>
